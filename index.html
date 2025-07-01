@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Speed Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .current-word {
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 3px;
+        }
+        .correct {
+            color: #10b981;
+        }
+        .incorrect {
+            color: #ef4444;
+            text-decoration: underline;
+        }
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.2em;
+            background-color: #3b82f6;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+            margin-left: 2px;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center py-8 px-4">
+    <div class="max-w-4xl w-full bg-white rounded-xl shadow-lg overflow-hidden">
+        <!-- Header -->
+        <div class="bg-blue-600 text-white p-6">
+            <h1 class="text-3xl font-bold text-center">Typing Speed Test</h1>
+            <p class="text-center mt-2 opacity-90">Test your typing speed and accuracy</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 border-b">
+            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                <div class="text-4xl font-bold text-blue-600" id="wpm">0</div>
+                <div class="text-gray-600 mt-1">Words/Min</div>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                <div class="text-4xl font-bold text-green-600" id="accuracy">100%</div>
+                <div class="text-gray-600 mt-1">Accuracy</div>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                <div class="text-4xl font-bold text-purple-600" id="timer">60</div>
+                <div class="text-gray-600 mt-1">Seconds Left</div>
+            </div>
+        </div>
+
+        <!-- Test Area -->
+        <div class="p-6">
+            <div class="mb-6">
+                <div class="text-gray-700 mb-2 flex justify-between items-center">
+                    <span>Type the text below:</span>
+                    <button id="restart-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded-md text-sm flex items-center">
+                        <i class="fas fa-redo mr-1"></i> Restart
+                    </button>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 h-32 overflow-y-auto leading-7 text-lg" id="text-display"></div>
+            </div>
+
+            <div class="relative">
+                <textarea 
+                    id="input-field" 
+                    class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none" 
+                    rows="4" 
+                    placeholder="Start typing here..." 
+                    autofocus
+                ></textarea>
+                <div id="cursor" class="cursor absolute top-4 left-4 hidden"></div>
+            </div>
+        </div>
+
+        <!-- Results (hidden initially) -->
+        <div id="results" class="hidden p-6 bg-blue-50 border-t">
+            <h3 class="text-xl font-semibold text-blue-800 mb-4">Test Results</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <div class="flex justify-between py-2 border-b">
+                        <span class="text-gray-700">Typing Speed:</span>
+                        <span class="font-medium" id="final-wpm">0 WPM</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b">
+                        <span class="text-gray-700">Accuracy:</span>
+                        <span class="font-medium" id="final-accuracy">100%</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b">
+                        <span class="text-gray-700">Correct Words:</span>
+                        <span class="font-medium" id="correct-words">0</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b">
+                        <span class="text-gray-700">Incorrect Words:</span>
+                        <span class="font-medium" id="incorrect-words">0</span>
+                    </div>
+                </div>
+                <div class="flex flex-col items-center justify-center">
+                    <div class="text-5xl font-bold text-blue-600 mb-2" id="final-score">0</div>
+                    <div class="text-gray-600">Final Score</div>
+                    <button id="try-again-btn" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center">
+                        <i class="fas fa-redo mr-2"></i> Try Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sample texts for typing test
+            const sampleTexts = [
+                "The quick brown fox jumps over the lazy dog. This sentence contains all the letters in the English alphabet. Typing is an essential skill in today's digital world.",
+                "Programming is the process of creating a set of instructions that tell a computer how to perform a task. JavaScript is one of the core technologies of the World Wide Web.",
+                "Practice makes perfect. Consistent typing practice can significantly improve your speed and accuracy over time. Try to focus on accuracy first, then gradually increase your speed.",
+                "The journey of a thousand miles begins with a single step. Learning to type efficiently requires patience and persistence. Don't get discouraged by initial slow progress.",
+                "To be or not to be, that is the question. Whether 'tis nobler in the mind to suffer the slings and arrows of outrageous fortune or to take arms against a sea of troubles."
+            ];
+
+            // DOM elements
+            const textDisplay = document.getElementById('text-display');
+            const inputField = document.getElementById('input-field');
+            const wpmDisplay = document.getElementById('wpm');
+            const accuracyDisplay = document.getElementById('accuracy');
+            const timerDisplay = document.getElementById('timer');
+            const restartBtn = document.getElementById('restart-btn');
+            const resultsSection = document.getElementById('results');
+            const finalWpm = document.getElementById('final-wpm');
+            const finalAccuracy = document.getElementById('final-accuracy');
+            const correctWords = document.getElementById('correct-words');
+            const incorrectWords = document.getElementById('incorrect-words');
+            const finalScore = document.getElementById('final-score');
+            const tryAgainBtn = document.getElementById('try-again-btn');
+            const cursor = document.getElementById('cursor');
+
+            // Test variables
+            let words = [];
+            let currentWordIndex = 0;
+            let correctChars = 0;
+            let totalChars = 0;
+            let startTime;
+            let timerInterval;
+            let timeLeft = 60;
+            let testActive = false;
+            let correctWordCount = 0;
+            let incorrectWordCount = 0;
+
+            // Initialize the test
+            function initTest() {
+                // Reset variables
+                currentWordIndex = 0;
+                correctChars = 0;
+                totalChars = 0;
+                timeLeft = 60;
+                correctWordCount = 0;
+                incorrectWordCount = 0;
+                testActive = false;
+                
+                // Clear any existing timer
+                clearInterval(timerInterval);
+                
+                // Hide results
+                resultsSection.classList.add('hidden');
+                
+                // Select random text
+                const randomText = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
+                words = randomText.split(' ');
+                
+                // Display text with highlighting
+                renderText();
+                
+                // Reset input field
+                inputField.value = '';
+                inputField.disabled = false;
+                inputField.focus();
+                
+                // Reset stats
+                wpmDisplay.textContent = '0';
+                accuracyDisplay.textContent = '100%';
+                timerDisplay.textContent = timeLeft;
+            }
+
+            // Render the text with current word highlighted
+            function renderText() {
+                let html = '';
+                words.forEach((word, index) => {
+                    if (index === currentWordIndex) {
+                        html += `<span class="current-word" id="word-${index}">${word}</span>`;
+                    } else if (index < currentWordIndex) {
+                        const wordElement = document.getElementById(`word-${index}`);
+                        const isCorrect = wordElement && wordElement.classList.contains('correct-word');
+                        html += `<span class="${isCorrect ? 'correct' : 'incorrect'}" id="word-${index}">${word}</span>`;
+                    } else {
+                        html += `<span id="word-${index}">${word}</span>`;
+                    }
+                    html += ' ';
+                });
+                textDisplay.innerHTML = html;
+                
+                // Scroll to current word
+                const currentWordElement = document.getElementById(`word-${currentWordIndex}`);
+                if (currentWordElement) {
+                    currentWordElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            // Start the test timer
+            function startTimer() {
+                testActive = true;
+                startTime = new Date().getTime();
+                timerInterval = setInterval(updateTimer, 1000);
+            }
+
+            // Update the timer
+            function updateTimer() {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    endTest();
+                }
+            }
+
+            // Calculate WPM
+            function calculateWPM() {
+                if (!testActive) return 0;
+                
+                const now = new Date().getTime();
+                const timeElapsed = (now - startTime) / 60000; // in minutes
+                const wpm = Math.round((correctWordCount / timeElapsed) || 0);
+                return wpm;
+            }
+
+            // Calculate accuracy
+            function calculateAccuracy() {
+                if (totalChars === 0) return 100;
+                return Math.round((correctChars / totalChars) * 100);
+            }
+
+            // Update stats
+            function updateStats() {
+                wpmDisplay.textContent = calculateWPM();
+                accuracyDisplay.textContent = `${calculateAccuracy()}%`;
+            }
+
+            // End the test
+            function endTest() {
+                clearInterval(timerInterval);
+                testActive = false;
+                inputField.disabled = true;
+                
+                // Calculate final stats
+                const finalWpmValue = calculateWPM();
+                const finalAccuracyValue = calculateAccuracy();
+                const score = Math.round(finalWpmValue * (finalAccuracyValue / 100));
+                
+                // Display results
+                finalWpm.textContent = `${finalWpmValue} WPM`;
+                finalAccuracy.textContent = `${finalAccuracyValue}%`;
+                correctWords.textContent = correctWordCount;
+                incorrectWords.textContent = incorrectWordCount;
+                finalScore.textContent = score;
+                
+                // Show results section
+                resultsSection.classList.remove('hidden');
+            }
+
+            // Handle input
+            inputField.addEventListener('input', function(e) {
+                if (!testActive && inputField.value.trim() !== '') {
+                    startTimer();
+                }
+                
+                const inputValue = inputField.value.trim();
+                const currentWord = words[currentWordIndex];
+                
+                // Check if space was pressed (word completed)
+                if (inputValue.endsWith(' ')) {
+                    // Mark current word as correct/incorrect
+                    const wordElement = document.getElementById(`word-${currentWordIndex}`);
+                    const isCorrect = inputValue.trim() === currentWord;
+                    
+                    if (isCorrect) {
+                        wordElement.classList.add('correct-word');
+                        correctWordCount++;
+                    } else {
+                        wordElement.classList.add('incorrect-word');
+                        incorrectWordCount++;
+                    }
+                    
+                    // Update character counts
+                    totalChars += currentWord.length;
+                    correctChars += isCorrect ? currentWord.length : 0;
+                    
+                    // Move to next word
+                    currentWordIndex++;
+                    inputField.value = '';
+                    
+                    // Check if test is complete
+                    if (currentWordIndex >= words.length) {
+                        endTest();
+                    } else {
+                        renderText();
+                    }
+                }
+                
+                // Update cursor position
+                updateCursorPosition();
+                
+                // Update stats
+                updateStats();
+            });
+
+            // Update cursor position
+            function updateCursorPosition() {
+                const inputValue = inputField.value;
+                const currentWordElement = document.getElementById(`word-${currentWordIndex}`);
+                
+                if (!currentWordElement) return;
+                
+                // Measure the width of the typed portion
+                const tempSpan = document.createElement('span');
+                tempSpan.textContent = inputValue;
+                tempSpan.style.visibility = 'hidden';
+                tempSpan.style.position = 'absolute';
+                tempSpan.style.whiteSpace = 'pre';
+                document.body.appendChild(tempSpan);
+                const width = tempSpan.offsetWidth;
+                document.body.removeChild(tempSpan);
+                
+                // Position the cursor
+                const wordRect = currentWordElement.getBoundingClientRect();
+                const displayRect = textDisplay.getBoundingClientRect();
+                
+                cursor.style.left = `${wordRect.left - displayRect.left + width + 10}px`;
+                cursor.style.top = '4px';
+                cursor.classList.remove('hidden');
+            }
+
+            // Event listeners for buttons
+            restartBtn.addEventListener('click', initTest);
+            tryAgainBtn.addEventListener('click', initTest);
+
+            // Initialize the test on page load
+            initTest();
+
+            // Handle window resize for cursor positioning
+            window.addEventListener('resize', function() {
+                if (testActive) {
+                    updateCursorPosition();
+                }
+            });
+
+            // Show cursor when input is focused
+            inputField.addEventListener('focus', function() {
+                if (testActive) {
+                    cursor.classList.remove('hidden');
+                    updateCursorPosition();
+                }
+            });
+
+            // Hide cursor when input is blurred
+            inputField.addEventListener('blur', function() {
+                cursor.classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
