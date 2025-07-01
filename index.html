@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,14 +12,24 @@
             background-color: #3b82f6;
             color: white;
             border-radius: 3px;
+            padding: 0 2px;
         }
-        .correct {
+
+        .correct-word {
             color: #10b981;
+            background-color: #dcfce7;
+            border-radius: 3px;
+            padding: 0 2px;
         }
-        .incorrect {
+
+        .incorrect-word {
             color: #ef4444;
+            background-color: #fee2e2;
             text-decoration: underline;
+            border-radius: 3px;
+            padding: 0 2px;
         }
+
         .cursor {
             display: inline-block;
             width: 2px;
@@ -28,12 +39,26 @@
             vertical-align: middle;
             margin-left: 2px;
         }
+
         @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .word-span {
+            display: inline-block;
+            margin-right: 8px;
         }
     </style>
 </head>
+
 <body class="bg-gray-100 min-h-screen flex flex-col items-center py-8 px-4">
     <div class="max-w-4xl w-full bg-white rounded-xl shadow-lg overflow-hidden">
         <!-- Header -->
@@ -63,22 +88,19 @@
             <div class="mb-6">
                 <div class="text-gray-700 mb-2 flex justify-between items-center">
                     <span>Type the text below:</span>
-                    <button id="restart-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded-md text-sm flex items-center">
+                    <button id="restart-btn"
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded-md text-sm flex items-center">
                         <i class="fas fa-redo mr-1"></i> Restart
                     </button>
                 </div>
-                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 h-32 overflow-y-auto leading-7 text-lg" id="text-display"></div>
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 h-32 overflow-y-auto leading-8 text-lg"
+                    id="text-display"></div>
             </div>
 
             <div class="relative">
-                <textarea 
-                    id="input-field" 
-                    class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none" 
-                    rows="4" 
-                    placeholder="Start typing here..." 
-                    autofocus
-                ></textarea>
-                <div id="cursor" class="cursor absolute top-4 left-4 hidden"></div>
+                <textarea id="input-field"
+                    class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
+                    rows="4" placeholder="Start typing here..." autofocus></textarea>
             </div>
         </div>
 
@@ -103,11 +125,16 @@
                         <span class="text-gray-700">Incorrect Words:</span>
                         <span class="font-medium" id="incorrect-words">0</span>
                     </div>
+                    <div class="flex justify-between py-2 border-b">
+                        <span class="text-gray-700">Total Characters:</span>
+                        <span class="font-medium" id="total-chars">0</span>
+                    </div>
                 </div>
                 <div class="flex flex-col items-center justify-center">
                     <div class="text-5xl font-bold text-blue-600 mb-2" id="final-score">0</div>
                     <div class="text-gray-600">Final Score</div>
-                    <button id="try-again-btn" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center">
+                    <button id="try-again-btn"
+                        class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center">
                         <i class="fas fa-redo mr-2"></i> Try Again
                     </button>
                 </div>
@@ -115,15 +142,27 @@
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="mt-8 text-center text-gray-600 text-sm">
+        <p>Developed with ❤️ by <a href="https://www.linkedin.com/in/alan-s-9385a328a/"><strong>Alan S</strong></a> ©
+            2025 Typing Speed Test. All rights reserved.
+        </p>
+    </footer>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Sample texts for typing test
             const sampleTexts = [
-                "The quick brown fox jumps over the lazy dog. This sentence contains all the letters in the English alphabet. Typing is an essential skill in today's digital world.",
-                "Programming is the process of creating a set of instructions that tell a computer how to perform a task. JavaScript is one of the core technologies of the World Wide Web.",
-                "Practice makes perfect. Consistent typing practice can significantly improve your speed and accuracy over time. Try to focus on accuracy first, then gradually increase your speed.",
-                "The journey of a thousand miles begins with a single step. Learning to type efficiently requires patience and persistence. Don't get discouraged by initial slow progress.",
-                "To be or not to be, that is the question. Whether 'tis nobler in the mind to suffer the slings and arrows of outrageous fortune or to take arms against a sea of troubles."
+                "The quick brown fox jumps over the lazy dog. This sentence contains all the letters in the English alphabet. Typing is an essential skill in today's digital world. With computers becoming more prevalent in our daily lives, the ability to type efficiently has become increasingly important for both personal and professional success.",
+                "Programming is the process of creating a set of instructions that tell a computer how to perform a task. JavaScript is one of the core technologies of the World Wide Web. Modern software development requires not only logical thinking but also excellent typing skills to write clean and efficient code. Developers spend countless hours writing, debugging, and refactoring code to create amazing applications.",
+                "Practice makes perfect. Consistent typing practice can significantly improve your speed and accuracy over time. Try to focus on accuracy first, then gradually increase your speed. Remember that muscle memory plays a crucial role in developing typing proficiency. Set aside time each day to practice, and you will notice remarkable improvement in your typing abilities within just a few weeks.",
+                "The journey of a thousand miles begins with a single step. Learning to type efficiently requires patience and persistence. Don't get discouraged by initial slow progress. Every expert was once a beginner, and every professional typist started with hunt-and-peck typing. Embrace the learning process, celebrate small victories, and maintain a positive attitude throughout your typing journey.",
+                "To be or not to be, that is the question. Whether 'tis nobler in the mind to suffer the slings and arrows of outrageous fortune or to take arms against a sea of troubles. Shakespeare's timeless words remind us that life presents us with difficult choices and challenges. Literature has the power to inspire, educate, and transform our perspectives on life and human nature.",
+                "Technology has revolutionized the way we communicate, work, and live our daily lives. From smartphones to artificial intelligence, innovation continues to shape our future in unprecedented ways. The digital age has brought both opportunities and challenges, requiring us to adapt and learn new skills constantly. Embracing change and staying curious are essential qualities for thriving in our rapidly evolving world.",
+                "Education is the foundation of personal growth and societal progress. Knowledge empowers individuals to make informed decisions, solve complex problems, and contribute meaningfully to their communities. Lifelong learning has become more important than ever as industries evolve and new technologies emerge. Curiosity, critical thinking, and adaptability are the key skills that will help us navigate the future successfully.",
+                "Climate change represents one of the most pressing challenges of our time. Rising global temperatures, melting ice caps, and extreme weather events are affecting ecosystems and communities worldwide. Sustainable practices, renewable energy sources, and environmental conservation efforts are crucial for protecting our planet for future generations. Every individual action, no matter how small, contributes to the collective effort of creating a more sustainable world.",
+                "The art of cooking brings people together and celebrates cultural diversity through flavors, aromas, and traditions passed down through generations. Preparing meals from scratch not only nourishes the body but also provides a creative outlet and a sense of accomplishment. Exploring different cuisines opens our minds to new experiences and helps us appreciate the rich tapestry of human culture and creativity.",
+                "Physical fitness and mental well-being are interconnected aspects of a healthy lifestyle. Regular exercise not only strengthens our bodies but also improves mood, reduces stress, and enhances cognitive function. Finding activities that you enjoy, whether it's dancing, hiking, swimming, or yoga, makes maintaining an active lifestyle more sustainable and enjoyable. Small, consistent efforts yield significant long-term benefits for overall health and quality of life."
             ];
 
             // DOM elements
@@ -138,19 +177,20 @@
             const finalAccuracy = document.getElementById('final-accuracy');
             const correctWords = document.getElementById('correct-words');
             const incorrectWords = document.getElementById('incorrect-words');
+            const totalCharsDisplay = document.getElementById('total-chars');
             const finalScore = document.getElementById('final-score');
             const tryAgainBtn = document.getElementById('try-again-btn');
-            const cursor = document.getElementById('cursor');
 
             // Test variables
             let words = [];
             let currentWordIndex = 0;
             let correctChars = 0;
             let totalChars = 0;
-            let startTime;
-            let timerInterval;
+            let startTime = null;
+            let timerInterval = null;
             let timeLeft = 60;
             let testActive = false;
+            let testStarted = false;
             let correctWordCount = 0;
             let incorrectWordCount = 0;
 
@@ -164,25 +204,30 @@
                 correctWordCount = 0;
                 incorrectWordCount = 0;
                 testActive = false;
-                
+                testStarted = false;
+                startTime = null;
+
                 // Clear any existing timer
-                clearInterval(timerInterval);
-                
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+
                 // Hide results
                 resultsSection.classList.add('hidden');
-                
+
                 // Select random text
                 const randomText = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
                 words = randomText.split(' ');
-                
+
                 // Display text with highlighting
                 renderText();
-                
+
                 // Reset input field
                 inputField.value = '';
                 inputField.disabled = false;
                 inputField.focus();
-                
+
                 // Reset stats
                 wpmDisplay.textContent = '0';
                 accuracyDisplay.textContent = '100%';
@@ -193,38 +238,52 @@
             function renderText() {
                 let html = '';
                 words.forEach((word, index) => {
+                    let className = 'word-span';
+
                     if (index === currentWordIndex) {
-                        html += `<span class="current-word" id="word-${index}">${word}</span>`;
+                        className += ' current-word';
                     } else if (index < currentWordIndex) {
-                        const wordElement = document.getElementById(`word-${index}`);
-                        const isCorrect = wordElement && wordElement.classList.contains('correct-word');
-                        html += `<span class="${isCorrect ? 'correct' : 'incorrect'}" id="word-${index}">${word}</span>`;
-                    } else {
-                        html += `<span id="word-${index}">${word}</span>`;
+                        const isCorrect = getWordStatus(index);
+                        className += isCorrect ? ' correct-word' : ' incorrect-word';
                     }
-                    html += ' ';
+
+                    html += `<span class="${className}" data-word-index="${index}">${word}</span>`;
                 });
                 textDisplay.innerHTML = html;
-                
+
                 // Scroll to current word
-                const currentWordElement = document.getElementById(`word-${currentWordIndex}`);
+                const currentWordElement = textDisplay.querySelector(`[data-word-index="${currentWordIndex}"]`);
                 if (currentWordElement) {
                     currentWordElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             }
 
+            // Store word results
+            let wordResults = {};
+
+            function getWordStatus(index) {
+                return wordResults[index] || false;
+            }
+
             // Start the test timer
             function startTimer() {
-                testActive = true;
-                startTime = new Date().getTime();
-                timerInterval = setInterval(updateTimer, 1000);
+                if (!testStarted) {
+                    testActive = true;
+                    testStarted = true;
+                    startTime = Date.now();
+                    timerInterval = setInterval(updateTimer, 100); // More frequent updates
+                }
             }
 
             // Update the timer
             function updateTimer() {
-                timeLeft--;
-                timerDisplay.textContent = timeLeft;
-                
+                const elapsed = (Date.now() - startTime) / 1000;
+                timeLeft = Math.max(0, 60 - elapsed);
+                timerDisplay.textContent = Math.ceil(timeLeft);
+
+                // Update stats in real-time
+                updateStats();
+
                 if (timeLeft <= 0) {
                     endTest();
                 }
@@ -232,12 +291,13 @@
 
             // Calculate WPM
             function calculateWPM() {
-                if (!testActive) return 0;
-                
-                const now = new Date().getTime();
-                const timeElapsed = (now - startTime) / 60000; // in minutes
-                const wpm = Math.round((correctWordCount / timeElapsed) || 0);
-                return wpm;
+                if (!testStarted || !startTime) return 0;
+
+                const timeElapsedMinutes = (Date.now() - startTime) / 60000;
+                if (timeElapsedMinutes === 0) return 0;
+
+                const wpm = Math.round(correctWordCount / timeElapsedMinutes);
+                return Math.max(0, wpm);
             }
 
             // Calculate accuracy
@@ -254,125 +314,135 @@
 
             // End the test
             function endTest() {
-                clearInterval(timerInterval);
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
                 testActive = false;
                 inputField.disabled = true;
-                
+
                 // Calculate final stats
                 const finalWpmValue = calculateWPM();
                 const finalAccuracyValue = calculateAccuracy();
                 const score = Math.round(finalWpmValue * (finalAccuracyValue / 100));
-                
+
                 // Display results
                 finalWpm.textContent = `${finalWpmValue} WPM`;
                 finalAccuracy.textContent = `${finalAccuracyValue}%`;
                 correctWords.textContent = correctWordCount;
                 incorrectWords.textContent = incorrectWordCount;
+                totalCharsDisplay.textContent = totalChars;
                 finalScore.textContent = score;
-                
+
                 // Show results section
                 resultsSection.classList.remove('hidden');
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
             }
 
             // Handle input
-            inputField.addEventListener('input', function(e) {
-                if (!testActive && inputField.value.trim() !== '') {
+            inputField.addEventListener('input', function (e) {
+                // Start timer on first input
+                if (!testStarted && inputField.value.trim() !== '') {
                     startTimer();
                 }
-                
-                const inputValue = inputField.value.trim();
-                const currentWord = words[currentWordIndex];
-                
-                // Check if space was pressed (word completed)
-                if (inputValue.endsWith(' ')) {
-                    // Mark current word as correct/incorrect
-                    const wordElement = document.getElementById(`word-${currentWordIndex}`);
-                    const isCorrect = inputValue.trim() === currentWord;
-                    
-                    if (isCorrect) {
-                        wordElement.classList.add('correct-word');
-                        correctWordCount++;
-                    } else {
-                        wordElement.classList.add('incorrect-word');
-                        incorrectWordCount++;
-                    }
-                    
-                    // Update character counts
-                    totalChars += currentWord.length;
-                    correctChars += isCorrect ? currentWord.length : 0;
-                    
-                    // Move to next word
-                    currentWordIndex++;
-                    inputField.value = '';
-                    
-                    // Check if test is complete
-                    if (currentWordIndex >= words.length) {
-                        endTest();
-                    } else {
-                        renderText();
+
+                if (!testActive) return;
+
+                const inputWords = inputField.value.trim().split(/\s+/);
+                const lastCompleteWordIndex = inputField.value.endsWith(' ') ? inputWords.length - 1 : inputWords.length - 2;
+
+                // Process completed words
+                for (let i = 0; i <= lastCompleteWordIndex && i < words.length; i++) {
+                    if (i >= currentWordIndex) {
+                        const typedWord = inputWords[i] || '';
+                        const correctWord = words[i];
+                        const isCorrect = typedWord === correctWord;
+
+                        // Store result
+                        wordResults[i] = isCorrect;
+
+                        // Update counters
+                        if (isCorrect) {
+                            correctWordCount++;
+                            correctChars += correctWord.length;
+                        } else {
+                            incorrectWordCount++;
+                        }
+                        totalChars += correctWord.length;
+
+                        currentWordIndex = i + 1;
                     }
                 }
-                
-                // Update cursor position
-                updateCursorPosition();
-                
-                // Update stats
+
+                // Check if test is complete
+                if (currentWordIndex >= words.length) {
+                    endTest();
+                    return;
+                }
+
+                // Re-render text to show progress
+                renderText();
                 updateStats();
             });
 
-            // Update cursor position
-            function updateCursorPosition() {
-                const inputValue = inputField.value;
-                const currentWordElement = document.getElementById(`word-${currentWordIndex}`);
-                
-                if (!currentWordElement) return;
-                
-                // Measure the width of the typed portion
-                const tempSpan = document.createElement('span');
-                tempSpan.textContent = inputValue;
-                tempSpan.style.visibility = 'hidden';
-                tempSpan.style.position = 'absolute';
-                tempSpan.style.whiteSpace = 'pre';
-                document.body.appendChild(tempSpan);
-                const width = tempSpan.offsetWidth;
-                document.body.removeChild(tempSpan);
-                
-                // Position the cursor
-                const wordRect = currentWordElement.getBoundingClientRect();
-                const displayRect = textDisplay.getBoundingClientRect();
-                
-                cursor.style.left = `${wordRect.left - displayRect.left + width + 10}px`;
-                cursor.style.top = '4px';
-                cursor.classList.remove('hidden');
-            }
+            // Handle space key to move to next word
+            inputField.addEventListener('keydown', function (e) {
+                if (e.key === ' ' && testActive) {
+                    // Prevent default space behavior
+                    e.preventDefault();
+
+                    const inputWords = inputField.value.trim().split(/\s+/);
+                    const currentTypedWord = inputWords[inputWords.length - 1] || '';
+                    const correctWord = words[currentWordIndex];
+
+                    if (currentWordIndex < words.length) {
+                        const isCorrect = currentTypedWord === correctWord;
+
+                        // Store result
+                        wordResults[currentWordIndex] = isCorrect;
+
+                        // Update counters
+                        if (isCorrect) {
+                            correctWordCount++;
+                            correctChars += correctWord.length;
+                        } else {
+                            incorrectWordCount++;
+                        }
+                        totalChars += correctWord.length;
+
+                        currentWordIndex++;
+
+                        // Add space to input and continue
+                        inputField.value += ' ';
+
+                        // Check if test is complete
+                        if (currentWordIndex >= words.length) {
+                            endTest();
+                            return;
+                        }
+
+                        // Re-render text
+                        renderText();
+                        updateStats();
+                    }
+                }
+            });
 
             // Event listeners for buttons
             restartBtn.addEventListener('click', initTest);
             tryAgainBtn.addEventListener('click', initTest);
 
+            // Prevent input field from losing focus
+            inputField.addEventListener('blur', function () {
+                if (testActive) {
+                    setTimeout(() => inputField.focus(), 0);
+                }
+            });
+
             // Initialize the test on page load
             initTest();
-
-            // Handle window resize for cursor positioning
-            window.addEventListener('resize', function() {
-                if (testActive) {
-                    updateCursorPosition();
-                }
-            });
-
-            // Show cursor when input is focused
-            inputField.addEventListener('focus', function() {
-                if (testActive) {
-                    cursor.classList.remove('hidden');
-                    updateCursorPosition();
-                }
-            });
-
-            // Hide cursor when input is blurred
-            inputField.addEventListener('blur', function() {
-                cursor.classList.add('hidden');
-            });
         });
     </script>
 </body>
+
 </html>
